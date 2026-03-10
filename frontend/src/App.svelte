@@ -3,7 +3,7 @@
 </script>
 
 <main>
-  <EmployeeForm />
+  <EmployeeForm/>
 </main>
 
 <style>

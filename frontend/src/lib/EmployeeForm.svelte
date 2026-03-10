@@ -1,4 +1,10 @@
-<script>
+<script lang="ts">
+  import ProjectSelector from './ProjectSelector.svelte';
+
+  let projectData = {
+    selectedProjects: []
+  };
+
   let formData = {
     fullName: '',
     email: '',
@@ -67,19 +73,7 @@
   </label>
 
   <label>
-    Available Projects:
-    <select multiple size="8" bind:value={formData.selectedProjects} required>
-      <option value="1">Customer Portal Redesign</option>
-      <option value="2">Data Pipeline Migration</option>
-      <option value="3">Mobile App Enhancement</option>
-      <option value="4">Internal Analytics Dashboard</option>
-      <option value="5">API Gateway Implementation</option>
-      <option value="6">Cloud Infrastructure Setup</option>
-      <option value="7">E-commerce Platform Update</option>
-      <option value="8">Reporting System Automation</option>
-      <option value="9">Microservices Architecture Transition</option>
-      <option value="10">Customer Data Platform Integration</option>
-    </select>
+    <ProjectSelector bind:selectedProjects={projectData.selectedProjects} />
   </label>
 
   <fieldset>
