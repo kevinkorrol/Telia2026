@@ -1,11 +1,22 @@
 <script lang="ts">
   import ProjectSelector from './ProjectSelector.svelte';
+  let isSubmitting = false;
+  let submitError = '';
+  let submitSuccess = '';
 
-  let projectData = {
-    selectedProjects: []
+  type EmployeePayload = {
+    id?: number;
+    fullName: string;
+    email: string;
+    experienceLevel: string;
+    techStack: string;
+    selectedProjects: number[];
+    duration: string;
+    additionalSkills: string;
+    confirmAvailability: boolean;
   };
 
-  let formData = {
+  let formData: EmployeePayload = {
     fullName: '',
     email: '',
     experienceLevel: '',
@@ -16,9 +27,37 @@
     confirmAvailability: false
   };
 
-  function handleSubmit() {
-    console.log('Form submitted:', formData);
-    // TODO: Send to Flask backend
+  async function handleSubmit() {
+    submitError = '';
+    submitSuccess = '';
+    isSubmitting = true;
+
+    try {
+        const response = await fetch("http://127.0.0.1:5000/api/employees", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"},
+            body:JSON.stringify(formData)
+        });
+
+        if (!response.ok){
+            const errBody = await response.json().catch(() => null);
+            throw new Error(errBody?.error || 'Failed to submit form');
+        }
+
+        const savedResult = await response.json();
+        if (savedResult?.employee) {
+          formData = savedResult.employee;
+        }
+
+        submitSuccess = response.status === 201
+          ? 'Profile created successfully!'
+          : 'Profile updated successfully!';
+    } catch (err) {
+        submitError = err instanceof Error ? err.message : 'An unknown error occurred';
+    } finally {
+        isSubmitting = false;
+    }
   }
 
   function handleClear() {
@@ -41,17 +80,17 @@
 <form on:submit|preventDefault={handleSubmit}>
   <label>
     Full Name:
-    <input type="text" bind:value={formData.fullName} required />
+    <input type="text" bind:value={formData.fullName}/>
   </label>
 
   <label>
     Email Address:
-    <input type="email" bind:value={formData.email} required />
+    <input type="email" bind:value={formData.email}/>
   </label>
 
   <label>
     Experience Level:
-    <select bind:value={formData.experienceLevel} required>
+    <select bind:value={formData.experienceLevel}>
       <option value="">Select your level</option>
       <option value="junior">Junior (0-2 years)</option>
       <option value="mid">Mid-level (2-5 years)</option>
@@ -61,7 +100,7 @@
 
   <label>
     Primary Technology Stack:
-    <select bind:value={formData.techStack} required>
+    <select bind:value={formData.techStack}>
       <option value="">Choose one</option>
       <option value="backend">Backend Development</option>
       <option value="frontend">Frontend Development</option>
@@ -73,13 +112,13 @@
   </label>
 
   <label>
-    <ProjectSelector bind:selectedProjects={projectData.selectedProjects} />
+    <ProjectSelector bind:selectedProjects={formData.selectedProjects}/>
   </label>
 
   <fieldset>
     <legend>Preferred Project Duration:</legend>
     <label>
-      <input type="radio" value="short" bind:group={formData.duration} required />
+      <input type="radio" value="short" bind:group={formData.duration} />
       Short-term (1-3 months)
     </label>
     <label>
@@ -98,12 +137,21 @@
   </label>
 
   <label>
-    <input type="checkbox" bind:checked={formData.confirmAvailability} required />
+    <input type="checkbox" bind:checked={formData.confirmAvailability} />
     I confirm my availability for the selected projects
   </label>
 
-  <button type="submit">Save Profile</button>
+  <button type="submit" disabled={isSubmitting}>
+    {isSubmitting ? 'Submitting...' : 'Submit'}
+  </button>
   <button type="button" on:click={handleClear}>Clear Form</button>
+
+  {#if submitError}
+    <p style="color: red;">{submitError}</p>
+  {/if}
+  {#if submitSuccess}
+    <p style="color: green;">{submitSuccess}</p>
+  {/if}
 </form>
 
 <style>
