@@ -10,6 +10,14 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db.init_app(app)
 CORS(app)
 
+with app.app_context():
+    db.create_all()
+    try:
+        from mock import seed_database
+        seed_database(app)
+    except Exception as exc:
+        app.logger.warning("Seeding skipped: %s", exc)
+
 def post_employee(employee: Employee, data: dict) -> None:
     employee.full_name = data.get('fullName', '').strip()
     employee.email = data.get('email', '').strip().lower()
