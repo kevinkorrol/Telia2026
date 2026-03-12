@@ -1,11 +1,14 @@
 <script lang="ts">
+  import { onMount } from 'svelte';
+  import { clickOutside } from './actions';
+
   export let selectedProjects: number[] = [];
-  
+
   let projects: Array<{ id: number; name: string }> = [];
   let loading = true;
   let error = '';
   let isOpen = false;
-  
+
   async function loadProjects() {
     try {
       const response = await fetch('http://localhost:5000/api/projects');
@@ -17,46 +20,54 @@
       loading = false;
     }
   }
-  
+
   function toggleProject(projectId: number) {
-    if (selectedProjects.includes(projectId)) {
-      selectedProjects = selectedProjects.filter(id => id !== projectId);
-    } else {
-      selectedProjects = [...selectedProjects, projectId];
-    }
+    selectedProjects = selectedProjects.includes(projectId)
+      ? selectedProjects.filter(id => id !== projectId)
+      : [...selectedProjects, projectId];
   }
-  
+
   function getSelectedNames(): string {
-    if (selectedProjects.length === 0) return 'Select projects...';
+    if (selectedProjects.length === 0) return 'Select projects…';
     return projects
       .filter(p => selectedProjects.includes(p.id))
       .map(p => p.name)
       .join(', ');
   }
-  
-  loadProjects();
+
+  onMount(() => {
+    loadProjects();
+  });
 </script>
 
-<div class="project-selector">
-  <p class="field-label">Available Projects:</p>
+<div class="ps-wrapper" use:clickOutside={() => isOpen = false}>
+  <label class="ps-label" for="ps-toggle">Available Projects</label>
   {#if loading}
-    <p>Loading projects...</p>
+    <p class="ps-state">Loading…</p>
   {:else if error}
-    <p style="color: red;">{error}</p>
+    <p class="ps-state ps-state--error">{error}</p>
   {:else}
-    <div class="dropdown">
-      <button type="button" class="dropdown-toggle" on:click={() => isOpen = !isOpen}>
-        {getSelectedNames()}
-        <span class="arrow">{isOpen ? '▲' : '▼'}</span>
+    <div class="ps-dropdown" class:is-open={isOpen}>
+      <button
+        id="ps-toggle"
+        type="button"
+        class="ps-toggle"
+        on:click={() => isOpen = !isOpen}
+        aria-expanded={isOpen}
+        aria-haspopup="listbox"
+      >
+        <span class="ps-toggle-text">{getSelectedNames()}</span>
+        <svg class="ps-chevron" class:rotated={isOpen} width="14" height="14" viewBox="0 0 14 14" fill="none">
+          <path d="M2 5l5 5 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
       </button>
-      
+
       {#if isOpen}
-        <div class="dropdown-menu">
+        <div class="ps-menu" role="listbox" aria-multiselectable="true">
           {#each projects as project}
-            <label class="dropdown-item">
+            <label class="ps-item">
               <input
                 type="checkbox"
-                value={project.id}
                 checked={selectedProjects.includes(project.id)}
                 on:change={() => toggleProject(project.id)}
               />
@@ -66,73 +77,173 @@
         </div>
       {/if}
     </div>
+
+    {#if !isOpen && selectedProjects.length > 0}
+      <div class="ps-chips">
+        {#each projects.filter(p => selectedProjects.includes(p.id)) as project}
+          <span class="ps-chip">
+            {project.name}
+            <button
+              type="button"
+              class="ps-chip-remove"
+              aria-label="Remove {project.name}"
+              on:click={() => toggleProject(project.id)}
+            >✕</button>
+          </span>
+        {/each}
+      </div>
+    {/if}
   {/if}
 </div>
 
 <style>
-  .project-selector {
+  .ps-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
     position: relative;
-    margin: 1rem 0;
   }
 
-  .field-label {
-    margin: 0 0 0.5rem 0;
+  .ps-label {
+    font-family: var(--font-heading);
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text);
   }
 
-  .dropdown {
+  .ps-wrapper:focus-within .ps-label {
+    color: var(--accent);
+  }
+
+  .ps-state {
+    font-size: 0.9rem;
+    color: var(--muted);
+  }
+
+  .ps-state--error {
+    color: var(--error);
+  }
+
+  .ps-dropdown {
     position: relative;
     width: 100%;
   }
 
-  .dropdown-toggle {
+  .ps-toggle {
     width: 100%;
-    padding: 0.5rem;
-    text-align: left;
-    background: #424141;
-    border: 1px solid #ccc;
+    font-family: var(--font-body);
+    font-size: 0.95rem;
+    color: var(--text);
+    background: var(--input-bg);
+    border: 1.5px solid var(--border);
     border-radius: 4px;
+    padding: 10px 12px;
+    text-align: left;
     cursor: pointer;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    gap: 8px;
+    outline: none;
   }
 
-  .arrow {
-    margin-left: 0.5rem;
+  .ps-dropdown.is-open .ps-toggle,
+  .ps-toggle:focus {
+    border-color: var(--border-focus);
   }
 
-  .dropdown-menu {
+  .ps-toggle-text {
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: var(--text);
+  }
+
+  .ps-chevron {
+    flex-shrink: 0;
+    color: var(--muted);
+    transition: transform 0.15s;
+  }
+
+  .ps-chevron.rotated {
+    transform: rotate(180deg);
+  }
+
+  .ps-menu {
     position: absolute;
-    top: 100%;
+    top: calc(100% + 4px);
     left: 0;
     right: 0;
-    max-height: 300px;
-    overflow-y: auto;
-    background: #424141;
-    border: 1px solid #ccc;
+    background: var(--input-bg);
+    border: 1.5px solid var(--border-focus);
     border-radius: 4px;
-    margin-top: 0.25rem;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    max-height: 260px;
+    overflow-y: auto;
     z-index: 1000;
+    box-shadow: 0 4px 16px rgba(0, 71, 255, 0.08);
   }
 
-  .dropdown-item {
+  .ps-item {
     display: flex;
     align-items: center;
-    padding: 0.5rem;
+    gap: 10px;
+    padding: 10px 12px;
+    font-family: var(--font-body);
+    font-size: 0.9rem;
+    color: var(--text);
     cursor: pointer;
-    border-bottom: 1px solid #f0f0f0;
+    border-bottom: 1px solid var(--border);
   }
 
-  .dropdown-item:hover {
-    background: #585656;
-  }
-
-  .dropdown-item:last-child {
+  .ps-item:last-child {
     border-bottom: none;
   }
 
-  .dropdown-item input[type="checkbox"] {
-    margin-right: 0.5rem;
+  .ps-item:hover {
+    background: #f0f4ff;
+  }
+
+  .ps-item input[type='checkbox'] {
+    accent-color: var(--accent);
+    width: 15px;
+    height: 15px;
+    flex-shrink: 0;
+  }
+
+  .ps-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 8px;
+  }
+
+  .ps-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #eef2ff;
+    color: var(--accent);
+    border: 1px solid #c7d2fe;
+    border-radius: 999px;
+    padding: 4px 10px 4px 12px;
+    font-family: var(--font-body);
+    font-size: 0.8rem;
+    font-weight: 500;
+  }
+
+  .ps-chip-remove {
+    background: none;
+    border: none;
+    color: var(--accent);
+    cursor: pointer;
+    font-size: 0.7rem;
+    padding: 0;
+    line-height: 1;
+    opacity: 0.7;
+  }
+
+  .ps-chip-remove:hover {
+    opacity: 1;
   }
 </style>

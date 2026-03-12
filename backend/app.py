@@ -1,6 +1,7 @@
 from flask import Flask, jsonify, request
 from flask_cors import *
 from db import db, Employee, Project
+import re
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///telia.db'
@@ -50,12 +51,30 @@ def get_projects():
 def save_employee():
     data = request.get_json(silent=True) or {}
 
-    required_fields = ["fullName", "email", "experienceLevel", "techStack"]
-    missing = [k for k in required_fields if not str(data.get(k, '')).strip()]
-    if missing:
-      return jsonify({'error': f'Missing fields: {", ".join(missing)}'}), 400
-    
-    employee = Employee.query.filter_by(email=data['email'].strip().lower()).first()
+    # Validation
+    required_fields = ["fullName", "email", "experienceLevel", "techStack", "duration"]
+    errors = {}
+
+    # Check required fields
+    for field in required_fields:
+        if not str(data.get(field, '')).strip():
+            errors[field] = f'{field} is required'
+
+    # Validate email format
+    email = str(data.get('email', '')).strip().lower()
+    if email and not re.match(r'^[^\s@]+@[^\s@]+\.[^\s@]+$', email):
+        errors['email'] = 'Invalid email format'
+
+    # Validate at least one project
+    selected_ids = data.get('selectedProjects', [])
+    if not isinstance(selected_ids, list) or len(selected_ids) == 0:
+        errors['selectedProjects'] = 'At least one project must be selected'
+
+    # Return errors if any
+    if errors:
+        return jsonify({'error': 'Validation failed', 'details': errors}), 400
+
+    employee = Employee.query.filter_by(email=email).first()
     created = employee is None
 
     if created:
