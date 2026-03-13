@@ -17,3 +17,7 @@ services:
       - /app/node_modules
     depends_on:
       - backend
+
+networks:
+  default:
+    name: network

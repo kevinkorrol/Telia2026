@@ -20,3 +20,8 @@
 
 ### Seeding and resetting data
 - Initial data seeds on backend start only when the SQLite file is empty.
+
+
+## Testing
+
+Backend tests can be run with the command `pytest`
