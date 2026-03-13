@@ -41,7 +41,7 @@
 </script>
 
 <div class="ps-wrapper" use:clickOutside={() => isOpen = false}>
-  <label class="ps-label" for="ps-toggle">Available Projects</label>
+  <label class="ps-label" for="ps-toggle">Available Projects *</label>
   {#if loading}
     <p class="ps-state">Loading…</p>
   {:else if error}
@@ -107,13 +107,11 @@
   .ps-label {
     font-family: var(--font-heading);
     font-size: 0.9rem;
-    font-weight: 600;
+    font-weight: 700;
     color: var(--text);
   }
 
-  .ps-wrapper:focus-within .ps-label {
-    color: var(--accent);
-  }
+  .ps-wrapper:focus-within .ps-label { color: var(--primary); }
 
   .ps-state {
     font-size: 0.9rem;
@@ -136,8 +134,8 @@
     color: var(--text);
     background: var(--input-bg);
     border: 1.5px solid var(--border);
-    border-radius: 4px;
-    padding: 10px 12px;
+    border-radius: var(--radius);
+    padding: 12px;
     text-align: left;
     cursor: pointer;
     display: flex;
@@ -145,11 +143,14 @@
     align-items: center;
     gap: 8px;
     outline: none;
+    transition: border-color 0.15s, box-shadow 0.15s, transform 0.1s ease;
   }
 
   .ps-dropdown.is-open .ps-toggle,
   .ps-toggle:focus {
-    border-color: var(--border-focus);
+    border-color: var(--primary);
+    box-shadow: 0 0 0 4px rgba(108, 43, 217, 0.1);
+    transform: translateY(-1px);
   }
 
   .ps-toggle-text {
@@ -176,12 +177,12 @@
     left: 0;
     right: 0;
     background: var(--input-bg);
-    border: 1.5px solid var(--border-focus);
-    border-radius: 4px;
+    border: 1.5px solid var(--primary);
+    border-radius: var(--radius);
     max-height: 260px;
     overflow-y: auto;
     z-index: 1000;
-    box-shadow: 0 4px 16px rgba(0, 71, 255, 0.08);
+    box-shadow: 0 10px 28px -18px rgba(83, 31, 179, 0.25);
   }
 
   .ps-item {
@@ -200,12 +201,10 @@
     border-bottom: none;
   }
 
-  .ps-item:hover {
-    background: #f0f4ff;
-  }
+  .ps-item:hover { background: #f6f1ff; }
 
   .ps-item input[type='checkbox'] {
-    accent-color: var(--accent);
+    accent-color: var(--primary);
     width: 15px;
     height: 15px;
     flex-shrink: 0;
@@ -222,20 +221,20 @@
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    background: #eef2ff;
-    color: var(--accent);
-    border: 1px solid #c7d2fe;
+    background: #f2eaff;
+    color: var(--primary-strong);
+    border: 1px solid #e0d4ff;
     border-radius: 999px;
     padding: 4px 10px 4px 12px;
     font-family: var(--font-body);
     font-size: 0.8rem;
-    font-weight: 500;
+    font-weight: 600;
   }
 
   .ps-chip-remove {
     background: none;
     border: none;
-    color: var(--accent);
+    color: var(--primary-strong);
     cursor: pointer;
     font-size: 0.7rem;
     padding: 0;

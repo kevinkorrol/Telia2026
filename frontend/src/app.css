@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+
 *, *::before, *::after {
   box-sizing: border-box;
   margin: 0;
@@ -5,21 +7,25 @@
 }
 
 :root {
-  --bg: #F9F9F7;
-  --text: #2D2D2D;
-  --accent: #0047FF;
-  --error: #C0392B;
-  --border: #C8C8C4;
-  --border-focus: #0047FF;
+  --bg: #F5F0FF;
+  --panel: #FFFFFF;
+  --text: #1F2733;
+  --muted: #6B7280;
+  --primary: #6C2BD9;
+  --primary-strong: #531FB3;
+  --accent: #6C2BD9;
+  --error: #DC2626;
+  --border: #E5E7EB;
   --input-bg: #FFFFFF;
-  --muted: #6B6B6B;
-  --font-heading: 'Source Serif 4', Georgia, serif;
-  --font-body: 'Inter', system-ui, sans-serif;
+  --radius: 12px;
+  --shadow: 0 16px 36px -26px rgba(83, 31, 179, 0.35);
+  --font-heading: 'Plus Jakarta Sans', 'Inter', system-ui, sans-serif;
+  --font-body: 'Plus Jakarta Sans', 'Inter', system-ui, sans-serif;
 
   font-family: var(--font-body);
   font-size: 16px;
   color: var(--text);
-  background-color: var(--bg);
+  background: var(--bg);
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
 }
@@ -27,9 +33,59 @@
 body {
   margin: 0;
   min-height: 100vh;
-  background-color: var(--bg);
+  background: radial-gradient(circle at 18% 20%, rgba(108, 43, 217, 0.08), transparent 32%),
+    radial-gradient(circle at 82% 0%, rgba(108, 43, 217, 0.06), transparent 30%),
+    #F5F0FF;
 }
 
-#app {
-  padding: 3rem 1rem 6rem;
+#app { padding: 0; }
+
+.page-shell {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 32px 22px 64px;
+}
+
+.hero {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 28px;
+}
+
+.hero__logo {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: #fff;
+  border: 1px solid var(--border);
+  display: grid;
+  place-items: center;
+  box-shadow: var(--shadow);
+}
+
+.hero__text h1 {
+  font-family: var(--font-heading);
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+
+.hero__text p {
+  font-size: 0.98rem;
+  color: var(--muted);
+}
+
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  box-shadow: var(--shadow);
+  padding: 24px 20px 28px;
+}
+
+@media (max-width: 900px) {
+  .page-shell { padding: 22px 16px 48px; }
+  .hero { align-items: flex-start; }
 }

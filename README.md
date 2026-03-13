@@ -1,7 +1,7 @@
 # Telia2026
 
 ## Architecture
-- Frontend: Svelte + TypeScript + Vite dev server/build (runs on port 5173 inside Docker)
+- Frontend: Svelte + TypeScript + Vite dev server. Runs on port 5173 inside Docker
 - Backend: Flask. Runs on port 5000 inside Docker.
 - Data: SQLite database file lives in backend directory; created and seeded on backend startup via mock.seed_database when empty.
 - Containers: Docker Compose builds two services (frontend, backend)

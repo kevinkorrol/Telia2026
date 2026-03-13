@@ -122,7 +122,7 @@
     submitSuccess = '';
 
     if (!validateForm()) {
-      submitError = 'Please fix the errors above';
+      submitError = 'Make sure all fields are correctly filled out';
       focusFirstError();
       return;
     }
@@ -159,8 +159,12 @@
       fullName: '', email: '', experienceLevel: '', techStack: '',
       selectedProjects: [], duration: '', additionalSkills: '', confirmAvailability: false
     };
+    fieldErrors = {};
     submitError = '';
     submitSuccess = '';
+    openExperience = false;
+    openTechStack = false;
+    openDuration = false;
   }
 
   let openExperience = false;
@@ -169,18 +173,13 @@
 </script>
 
 <div class="form-wrapper">
-  <header class="form-header">
-    <h1>Project Assignment Form</h1>
-    <p>Complete your profile to get assigned to internal projects.</p>
-  </header>
-
   <form novalidate on:submit|preventDefault={handleSubmit}>
 
     <section>
       <h2><span class="section-num">01</span> Personal Information</h2>
 
       <div class="field">
-        <label for="fullName">Full Name</label>
+        <label for="fullName">Full Name *</label>
         <input id="fullName" type="text" bind:value={formData.fullName} placeholder="Your full name" />
         {#if fieldErrors.fullName}
           <span class="field-error">{fieldErrors.fullName}</span>
@@ -188,7 +187,7 @@
       </div>
 
       <div class="field">
-        <label for="email">Email Address</label>
+        <label for="email">Email Address *</label>
         <input id="email" type="email" bind:value={formData.email} placeholder="name@company.com" />
         {#if fieldErrors.email}
           <span class="field-error">{fieldErrors.email}</span>
@@ -200,7 +199,7 @@
       <h2><span class="section-num">02</span> Experience &amp; Skills</h2>
 
       <div class="field">
-        <label for="experienceLevel">Experience Level</label>
+        <label for="experienceLevel">Experience Level *</label>
         <div class="select-wrap">
           <select id="experienceLevel" bind:value={formData.experienceLevel}
             on:mousedown={() => openExperience = !openExperience}
@@ -221,7 +220,7 @@
       </div>
 
       <div class="field">
-        <label for="techStack">Primary Technology Stack</label>
+        <label for="techStack">Primary Technology Stack *</label>
         <div class="select-wrap">
           <select id="techStack" bind:value={formData.techStack}
             on:mousedown={() => openTechStack = !openTechStack}
@@ -261,7 +260,7 @@
       </div>
 
       <div class="field">
-        <label for="duration">Preferred Project Duration</label>
+        <label for="duration">Preferred Project Duration *</label>
         <div class="select-wrap">
           <select id="duration" bind:value={formData.duration}
             on:mousedown={() => openDuration = !openDuration}
@@ -286,7 +285,7 @@
       <div class="field">
         <label class="checkbox-label">
           <input type="checkbox" bind:checked={formData.confirmAvailability} />
-          <span>I confirm my availability for the selected projects</span>
+          <span>I confirm my availability for the selected projects *</span>
         </label>
         {#if fieldErrors.confirmAvailability}
           <span class="field-error">{fieldErrors.confirmAvailability}</span>
@@ -313,58 +312,45 @@
 
 <style>
   .form-wrapper {
-    max-width: 720px;
+    max-width: 820px;
     margin: 0 auto;
     font-family: var(--font-body);
     color: var(--text);
   }
 
-  .form-header {
-    margin-bottom: 56px;
-    text-align: center;
-  }
-
-  .form-header h1 {
-    font-family: var(--font-heading);
-    font-size: 2rem;
-    font-weight: 600;
-    color: var(--text);
-    margin-bottom: 8px;
-  }
-
-  .form-header p {
-    font-size: 1rem;
-    color: var(--muted);
-  }
-
   form {
     display: flex;
     flex-direction: column;
-    gap: 72px;
+    gap: 48px;
   }
 
   section {
     display: flex;
     flex-direction: column;
-    gap: 24px;
+    gap: 22px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 18px 16px 20px;
+    box-shadow: var(--shadow);
   }
 
   section h2 {
     font-family: var(--font-heading);
-    font-size: 1.1rem;
-    font-weight: 600;
+    font-size: 1.05rem;
+    font-weight: 700;
     color: var(--text);
     display: flex;
     align-items: baseline;
-    gap: 12px;
-    padding-bottom: 12px;
+    gap: 10px;
+    padding-bottom: 10px;
     border-bottom: 1px solid var(--border);
   }
 
   .section-num {
     font-family: var(--font-body);
     font-size: 0.75rem;
-    font-weight: 500;
+    font-weight: 600;
     color: var(--muted);
     letter-spacing: 0.05em;
   }
@@ -377,14 +363,14 @@
 
   label {
     font-family: var(--font-heading);
-    font-size: 0.9rem;
-    font-weight: 600;
+    font-size: 0.92rem;
+    font-weight: 700;
     color: var(--text);
   }
 
   .optional {
     font-family: var(--font-body);
-    font-weight: 400;
+    font-weight: 500;
     font-size: 0.8rem;
     color: var(--muted);
   }
@@ -397,24 +383,21 @@
     color: var(--text);
     background: var(--input-bg);
     border: 1.5px solid var(--border);
-    border-radius: 4px;
-    padding: 10px 36px 10px 12px;
+    border-radius: var(--radius);
+    padding: 12px 40px 12px 12px;
     width: 100%;
     outline: none;
-    transition: border-color 0s;
+    transition: border-color 0.15s, box-shadow 0.15s, transform 0.1s ease;
   }
 
-  input[type="text"] {
-    padding: 10px 12px;
-  }
-  input[type="email"] {
-    padding: 10px 12px;
-  }
+  input[type="text"],
+  input[type="email"] { padding: 12px 12px; }
 
-  input[type="text"]:focus,
-  input[type="email"]:focus,
+  input:focus,
   select:focus {
-    border-color: var(--border-focus);
+    border-color: var(--primary);
+    box-shadow: 0 0 0 4px rgba(108, 43, 217, 0.1);
+    transform: translateY(-1px);
   }
 
   .select-wrap {
@@ -437,14 +420,9 @@
     transition: transform 0.15s;
   }
 
-  .select-chevron.rotated {
-    transform: rotate(180deg);
-    color: var(--accent);
-  }
+  .select-chevron.rotated { transform: rotate(180deg); color: var(--primary); }
 
-  .field:focus-within > label {
-    color: var(--accent);
-  }
+  .field:focus-within > label { color: var(--primary); }
 
   .checkbox-label {
     display: flex;
@@ -454,14 +432,14 @@
     cursor: pointer;
     font-family: var(--font-body);
     font-size: 0.95rem;
-    font-weight: 400;
+    font-weight: 500;
     color: var(--text);
   }
 
   .checkbox-label input[type="checkbox"] {
     width: 18px;
     height: 18px;
-    accent-color: var(--accent);
+    accent-color: var(--primary);
     flex-shrink: 0;
   }
 
@@ -473,26 +451,25 @@
 
   .btn-submit {
     font-family: var(--font-body);
-    font-size: 0.95rem;
-    font-weight: 500;
+    font-size: 1rem;
+    font-weight: 700;
     color: #fff;
-    background: var(--accent);
+    background: var(--primary);
     border: none;
-    border-radius: 4px;
+    border-radius: var(--radius);
     padding: 14px;
     width: 100%;
     cursor: pointer;
-    transition: opacity 0.15s;
+    transition: transform 0.12s ease, box-shadow 0.2s;
+    box-shadow: 0 14px 28px -22px rgba(83, 31, 179, 0.6);
   }
+
+  .btn-submit:hover { transform: translateY(-1px); box-shadow: 0 16px 32px -24px rgba(83, 31, 179, 0.7); }
 
   .btn-submit:disabled {
-    background: #C8C8C4;
+    background: #d5c7f1;
     cursor: not-allowed;
-    opacity: 1;
-  }
-
-  .btn-submit:not(:disabled):hover {
-    opacity: 0.88;
+    box-shadow: none;
   }
 
   .btn-clear {
@@ -500,38 +477,39 @@
     border: none;
     color: var(--muted);
     font-family: var(--font-body);
-    font-size: 0.85rem;
+    font-size: 0.9rem;
+    font-weight: 700;
     cursor: pointer;
     text-decoration: underline;
-    align-self: center;
+    align-self: flex-start;
     padding: 0;
   }
 
-  .btn-clear:hover {
-    color: var(--text);
-  }
+  .btn-clear:hover { color: var(--text); }
 
   .msg {
-    font-size: 0.875rem;
-    padding: 10px 14px;
-    border-radius: 4px;
+    font-size: 0.9rem;
+    padding: 12px 14px;
+    border-radius: 10px;
+    font-weight: 700;
   }
 
   .msg--error {
-    background: #fdf0ee;
-    color: var(--error);
-    border: 1px solid #e8b4ae;
+    background: #FEF2F2;
+    color: #B91C1C;
+    border: 1px solid #FECACA;
   }
 
   .msg--success {
-    background: #eef6f0;
-    color: #1e6b3a;
-    border: 1px solid #a8d5b5;
+    background: #ECFDF3;
+    color: #166534;
+    border: 1px solid #BBF7D0;
   }
 
   .field-error {
-    font-size: 0.75rem;
+    font-size: 0.8rem;
     color: var(--error);
     font-family: var(--font-body);
+    font-weight: 600;
   }
 </style>
