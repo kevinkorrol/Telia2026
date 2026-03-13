@@ -1,5 +1,6 @@
 from flask import Flask, jsonify, request
 from flask_cors import *
+from backend.mock import seed_database
 from db import db, Employee, Project
 import re
 
@@ -13,7 +14,6 @@ CORS(app)
 with app.app_context():
     db.create_all()
     try:
-        from mock import seed_database
         seed_database(app)
     except Exception as exc:
         app.logger.warning("Seeding skipped: %s", exc)
