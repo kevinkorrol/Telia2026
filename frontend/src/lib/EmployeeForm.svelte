@@ -255,7 +255,7 @@
       <div class="field">
         <label for="experienceLevel">Experience Level *</label>
         <div class="select-wrap">
-          <select id="experienceLevel" bind:value={formData.experienceLevel}
+          <select id="experienceLevel" bind:value={formData.experienceLevel} class:placeholder={!formData.experienceLevel}
             on:mousedown={() => openExperience = !openExperience}
             on:change={() => { openExperience = false; validateField('experienceLevel'); }}
             on:blur={() => { openExperience = false; validateField('experienceLevel'); }}>
@@ -276,7 +276,7 @@
       <div class="field">
         <label for="techStack">Primary Technology Stack *</label>
         <div class="select-wrap">
-          <select id="techStack" bind:value={formData.techStack}
+          <select id="techStack" bind:value={formData.techStack} class:placeholder={!formData.techStack}
             on:mousedown={() => openTechStack = !openTechStack}
             on:change={() => { openTechStack = false; validateField('techStack'); }}
             on:blur={() => { openTechStack = false; validateField('techStack'); }}>
@@ -319,7 +319,7 @@
       <div class="field">
         <label for="duration">Preferred Project Duration *</label>
         <div class="select-wrap">
-          <select id="duration" bind:value={formData.duration}
+          <select id="duration" bind:value={formData.duration} class:placeholder={!formData.duration}
             on:mousedown={() => openDuration = !openDuration}
             on:change={() => { openDuration = false; validateField('duration'); }}
             on:blur={() => { openDuration = false; validateField('duration'); }}>
@@ -452,6 +452,16 @@
     transition: border-color 0.15s, box-shadow 0.15s, transform 0.1s ease;
   }
 
+  input[type="text"]::placeholder,
+  input[type="email"]::placeholder {
+    color: var(--muted);
+    opacity: 1;
+  }
+
+  select.placeholder {
+    color: var(--muted);
+  }
+
   input[type="text"],
   input[type="email"] { padding: 12px 12px; }
 
@@ -515,7 +525,7 @@
     font-family: var(--font-body);
     font-size: 1rem;
     font-weight: 700;
-    color: #fff;
+    color: var(--panel);
     background: var(--primary);
     border: none;
     border-radius: var(--radius);
@@ -529,7 +539,7 @@
   .btn-submit:hover { transform: translateY(-1px); box-shadow: 0 16px 32px -24px rgba(83, 31, 179, 0.7); }
 
   .btn-submit:disabled {
-    background: #d5c7f1;
+    background: var(--disabled-bg);
     cursor: not-allowed;
     box-shadow: none;
   }
@@ -557,15 +567,15 @@
   }
 
   .msg--error {
-    background: #FEF2F2;
-    color: #B91C1C;
-    border: 1px solid #FECACA;
+    background: var(--danger-bg);
+    color: var(--danger-text);
+    border: 1px solid var(--danger-border);
   }
 
   .msg--success {
-    background: #ECFDF3;
-    color: #166534;
-    border: 1px solid #BBF7D0;
+    background: var(--success-bg);
+    color: var(--success-text);
+    border: 1px solid var(--success-border);
   }
 
   .field-error {

@@ -72,7 +72,7 @@
         aria-expanded={isOpen}
         aria-haspopup="listbox"
       >
-        <span class="ps-toggle-text">{getSelectedNames()}</span>
+        <span class="ps-toggle-text" class:placeholder={selectedProjects.length === 0}>{getSelectedNames()}</span>
         <svg class="ps-chevron" class:rotated={isOpen} width="14" height="14" viewBox="0 0 14 14" fill="none">
           <path d="M2 5l5 5 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
@@ -177,6 +177,10 @@
     color: var(--text);
   }
 
+  .ps-toggle-text.placeholder {
+    color: var(--muted);
+  }
+
   .ps-chevron {
     flex-shrink: 0;
     color: var(--muted);
@@ -217,7 +221,7 @@
     border-bottom: none;
   }
 
-  .ps-item:hover { background: #f6f1ff; }
+  .ps-item:hover { background: var(--item-hover-bg); }
 
   .ps-item input[type='checkbox'] {
     accent-color: var(--primary);
@@ -237,9 +241,9 @@
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    background: #f2eaff;
+    background: var(--chip-bg);
     color: var(--primary-strong);
-    border: 1px solid #e0d4ff;
+    border: 1px solid var(--chip-border);
     border-radius: 999px;
     padding: 4px 10px 4px 12px;
     font-family: var(--font-body);
