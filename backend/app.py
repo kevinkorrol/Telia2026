@@ -1,6 +1,6 @@
 from flask import Flask, jsonify, request
 from flask_cors import *
-from backend.mock import seed_database
+from mock import seed_database
 from db import db, Employee, Project
 import re
 
@@ -10,7 +10,6 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db.init_app(app)
 CORS(app)
-
 with app.app_context():
     db.create_all()
     try:
