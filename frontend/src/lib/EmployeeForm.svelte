@@ -14,6 +14,7 @@
     duration?: string;
     confirmAvailability?: string;
   };
+  type FieldKey = keyof FieldErrors;
   let fieldErrors: FieldErrors = {};
 
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -41,49 +42,88 @@
     confirmAvailability: false
   };
 
+  function getFieldError(field: FieldKey): string | undefined {
+    if (field === 'fullName' && formData.fullName.trim() === '') {
+      return 'Full Name is required';
+    }
+
+    if (field === 'email') {
+      const email = formData.email.trim();
+      if (email === '') {
+        return 'Email Address is required';
+      }
+      if (!emailRegex.test(email)) {
+        return 'Please enter a valid email address';
+      }
+    }
+
+    if (field === 'experienceLevel' && formData.experienceLevel === '') {
+      return 'Experience Level is required';
+    }
+
+    if (field === 'techStack' && formData.techStack === '') {
+      return 'Primary Technology Stack is required';
+    }
+
+    if (field === 'selectedProjects' && formData.selectedProjects.length === 0) {
+      return 'At least one project must be selected';
+    }
+
+    if (field === 'duration' && formData.duration === '') {
+      return 'Duration is required';
+    }
+
+    if (field === 'confirmAvailability' && !formData.confirmAvailability) {
+      return 'Availability is required';
+    }
+
+    return undefined;
+  }
+
+  function validateField(field: FieldKey): boolean {
+    const error = getFieldError(field);
+    if (error) {
+      fieldErrors = { ...fieldErrors, [field]: error };
+      return false;
+    }
+
+    const nextErrors = { ...fieldErrors };
+    delete nextErrors[field];
+    fieldErrors = nextErrors;
+    return true;
+  }
+
+  function validateIfInvalid(field: FieldKey) {
+    if (fieldErrors[field]) {
+      validateField(field);
+    }
+  }
+
+  function isSubmitReady(): boolean {
+    return (
+      formData.fullName.trim() !== '' &&
+      formData.email.trim() !== '' &&
+      emailRegex.test(formData.email.trim()) &&
+      formData.experienceLevel !== '' &&
+      formData.techStack !== '' &&
+      formData.selectedProjects.length > 0 &&
+      formData.duration !== '' &&
+      formData.confirmAvailability
+    );
+  }
+
   function validateForm(): boolean {
-    fieldErrors = {};
-    let isValid = true;
+    const validationResults = [
+      validateField('fullName'),
+      validateField('email'),
+      validateField('experienceLevel'),
+      validateField('techStack'),
+      validateField('selectedProjects'),
+      validateField('duration'),
+      validateField('confirmAvailability')
+    ];
 
-    if (formData.fullName.trim() === '') {
-      fieldErrors.fullName = 'Full Name is required';
-      isValid = false;
-    }
-
-    if (formData.email.trim() === '') {
-      fieldErrors.email = 'Email Address is required';
-      isValid = false;
-    } else if (!emailRegex.test(formData.email.trim())) {
-      fieldErrors.email = 'Please enter a valid email address';
-      isValid = false;
-    }
-
-    if (formData.experienceLevel === '') {
-      fieldErrors.experienceLevel = 'Experience Level is required';
-      isValid = false;
-    }
-
-    if (formData.techStack === '') {
-      fieldErrors.techStack = 'Primary Technology Stack is required';
-      isValid = false;
-    }
-
-    if (formData.selectedProjects.length === 0) {
-      fieldErrors.selectedProjects = 'At least one project must be selected';
-      isValid = false;
-    }
-
-    if (formData.duration === '') {
-      fieldErrors.duration = 'Duration is required';
-      isValid = false;
-    }
-
-    if (!formData.confirmAvailability) {
-      fieldErrors.confirmAvailability = 'You must confirm availability';
-      isValid = false;
-    }
-
-    return isValid;
+    return validationResults.every(Boolean);
   }
 
   function focusFirstError() {
@@ -180,7 +220,14 @@
 
       <div class="field">
         <label for="fullName">Full Name *</label>
-        <input id="fullName" type="text" bind:value={formData.fullName} placeholder="Your full name" />
+        <input
+          id="fullName"
+          type="text"
+          bind:value={formData.fullName}
+          placeholder="Your full name"
+          on:blur={() => validateField('fullName')}
+          on:input={() => validateIfInvalid('fullName')}
+        />
         {#if fieldErrors.fullName}
           <span class="field-error">{fieldErrors.fullName}</span>
         {/if}
@@ -188,7 +235,14 @@
 
       <div class="field">
         <label for="email">Email Address *</label>
-        <input id="email" type="email" bind:value={formData.email} placeholder="name@company.com" />
+        <input
+          id="email"
+          type="email"
+          bind:value={formData.email}
+          placeholder="name@company.com"
+          on:blur={() => validateField('email')}
+          on:input={() => validateIfInvalid('email')}
+        />
         {#if fieldErrors.email}
           <span class="field-error">{fieldErrors.email}</span>
         {/if}
@@ -203,8 +257,8 @@
         <div class="select-wrap">
           <select id="experienceLevel" bind:value={formData.experienceLevel}
             on:mousedown={() => openExperience = !openExperience}
-            on:change={() => openExperience = false}
-            on:blur={() => openExperience = false}>
+            on:change={() => { openExperience = false; validateField('experienceLevel'); }}
+            on:blur={() => { openExperience = false; validateField('experienceLevel'); }}>
             <option value="">Select your level</option>
             <option value="junior">Junior (0–2 years)</option>
             <option value="mid">Mid-level (2–5 years)</option>
@@ -224,8 +278,8 @@
         <div class="select-wrap">
           <select id="techStack" bind:value={formData.techStack}
             on:mousedown={() => openTechStack = !openTechStack}
-            on:change={() => openTechStack = false}
-            on:blur={() => openTechStack = false}>
+            on:change={() => { openTechStack = false; validateField('techStack'); }}
+            on:blur={() => { openTechStack = false; validateField('techStack'); }}>
             <option value="">Choose one</option>
             <option value="backend">Backend Development</option>
             <option value="frontend">Frontend Development</option>
@@ -253,7 +307,10 @@
       <h2><span class="section-num">03</span> Project Preferences</h2>
 
       <div class="field">
-        <ProjectSelector bind:selectedProjects={formData.selectedProjects} />
+        <ProjectSelector
+          bind:selectedProjects={formData.selectedProjects}
+          on:interact={() => validateField('selectedProjects')}
+        />
         {#if fieldErrors.selectedProjects}
           <span class="field-error">{fieldErrors.selectedProjects}</span>
         {/if}
@@ -264,8 +321,8 @@
         <div class="select-wrap">
           <select id="duration" bind:value={formData.duration}
             on:mousedown={() => openDuration = !openDuration}
-            on:change={() => openDuration = false}
-            on:blur={() => openDuration = false}>
+            on:change={() => { openDuration = false; validateField('duration'); }}
+            on:blur={() => { openDuration = false; validateField('duration'); }}>
             <option value="">Select duration</option>
             <option value="short">Short-term (1–3 months)</option>
             <option value="medium">Medium-term (3–6 months)</option>
@@ -284,7 +341,12 @@
 
       <div class="field">
         <label class="checkbox-label">
-          <input type="checkbox" bind:checked={formData.confirmAvailability} />
+          <input
+            type="checkbox"
+            bind:checked={formData.confirmAvailability}
+            on:change={() => validateField('confirmAvailability')}
+            on:blur={() => validateField('confirmAvailability')}
+          />
           <span>I confirm my availability for the selected projects *</span>
         </label>
         {#if fieldErrors.confirmAvailability}
@@ -301,7 +363,7 @@
         <p class="msg msg--success">{submitSuccess}</p>
       {/if}
 
-      <button type="submit" class="btn-submit" disabled={isSubmitting}>
+      <button type="submit" class="btn-submit" disabled={isSubmitting || !isSubmitReady()}>
         {isSubmitting ? 'Submitting…' : 'Submit Profile'}
       </button>
 

@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { createEventDispatcher } from 'svelte';
   import { onMount } from 'svelte';
   import { clickOutside } from './actions';
 
@@ -8,6 +9,7 @@
   let loading = true;
   let error = '';
   let isOpen = false;
+  const dispatch = createEventDispatcher();
 
   async function loadProjects() {
     try {
@@ -25,6 +27,7 @@
     selectedProjects = selectedProjects.includes(projectId)
       ? selectedProjects.filter(id => id !== projectId)
       : [...selectedProjects, projectId];
+    dispatch('interact');
   }
 
   function getSelectedNames(): string {
@@ -40,7 +43,15 @@
   });
 </script>
 
-<div class="ps-wrapper" use:clickOutside={() => isOpen = false}>
+<div
+  class="ps-wrapper"
+  use:clickOutside={() => {
+    if (isOpen) {
+      isOpen = false;
+      dispatch('interact');
+    }
+  }}
+>
   <label class="ps-label" for="ps-toggle">Available Projects *</label>
   {#if loading}
     <p class="ps-state">Loading…</p>
@@ -52,7 +63,12 @@
         id="ps-toggle"
         type="button"
         class="ps-toggle"
-        on:click={() => isOpen = !isOpen}
+        on:click={() => {
+          isOpen = !isOpen;
+          if (!isOpen) {
+            dispatch('interact');
+          }
+        }}
         aria-expanded={isOpen}
         aria-haspopup="listbox"
       >
